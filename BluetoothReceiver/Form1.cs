@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Media;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -75,6 +77,9 @@ namespace BluetoothReceiver
         public const int VK_LEFT = 0x25;
         public const int VK_RIGHT = 0x27;
 
+        private Button status_button;
+        private string status_text;
+        private bool connecting = false;
 
         public Form1()
         {
@@ -83,8 +88,15 @@ namespace BluetoothReceiver
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Console.WriteLine("接続中");
-            Start_Connection();   
+            if (connecting) {
+                SystemSounds.Beep.Play();
+                return; 
+            }
+            connecting = true;
+            status_button = (Button)sender;
+            status_button.Text = "接続待ち";
+            Console.WriteLine("接続開始");
+            Start_Connection();  
         }
 
         RfcommServiceProvider _provider;
@@ -107,6 +119,8 @@ namespace BluetoothReceiver
             _provider.StopAdvertising();
             listener.Dispose();
 
+            status_text = "接続中";
+            Invoke(new OnStatusChanged(SetStatusText));
             Console.WriteLine("接続完了");
 
             var _socket = args.Socket;
@@ -117,14 +131,30 @@ namespace BluetoothReceiver
             {
                 if (inputStream != null)
                 {
-                    uint bytesRead = dataReader.LoadAsync(1).AsTask().Result;
-                    if (bytesRead > 0)
+                    try
                     {
+                        await dataReader.LoadAsync(1);
                         byte data = dataReader.ReadByte();
-                        SendKeyFromKeyCode(data);
+                        if(data == 0x0)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            SendKeyFromKeyCode(data);
+                        }
+                    }catch (Exception ex)
+                    {
+                        Debug.WriteLine($"An error occurred: {ex.Message}");
+                        break;
                     }
                 }
             }
+
+            status_text = "接続";
+            Invoke(new OnStatusChanged(SetStatusText));
+            Console.WriteLine("接続終了");
+            connecting = false;
         }
 
         private void SendKeyFromKeyCode(byte data)
@@ -138,6 +168,13 @@ namespace BluetoothReceiver
             inputs[1].data.ki.dwFlags = KEYEVENTF_KEYUP;
             var result = SendInput(2, inputs, Marshal.SizeOf(typeof(INPUT)));
             Console.WriteLine($"Send : {data}, status {(result == 2 ? "OK" : "Error")}");
+        }
+
+        delegate void OnStatusChanged();
+
+        private void SetStatusText()
+        {
+            status_button.Text = status_text;
         }
     }
 }

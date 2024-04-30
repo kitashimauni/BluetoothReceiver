@@ -33,9 +33,10 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(328, 117);
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(336, 213);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(145, 80);
+            this.button1.Size = new System.Drawing.Size(150, 80);
             this.button1.TabIndex = 0;
             this.button1.Text = "接続";
             this.button1.UseVisualStyleBackColor = true;
@@ -43,12 +44,13 @@
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.button1);
+            this.MaximumSize = new System.Drawing.Size(822, 506);
+            this.MinimumSize = new System.Drawing.Size(822, 506);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "BluetoothReceiver";
             this.ResumeLayout(false);
 
         }
